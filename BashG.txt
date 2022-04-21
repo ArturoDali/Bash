@@ -1,0 +1,182 @@
+#!/bin/bash
+ROOT_UID=0
+SUCCES=0
+E_USEREXISTS=70
+String10="Elefante"
+clear
+echo "Menu de Opciones"
+echo " "
+echo "1.- Pase de Examen:"
+echo "2.- Revisar el estado de la memoria"
+echo "3.- Revisar el estado de disco"
+echo "4.- Ver la version del sistema"
+echo "5.- Escaneo de puertos rn la maquina"
+echo "6.- Crear  Usuarios"
+echo "7.- Calculadora"
+echo "8.- Saber mi ip"
+echo "9.- Saber mi puerta de enlace o Gateway"
+echo "10.- Si quieres crear un directorio"
+echo "11.- Informacion basica del sistema y saber la fecha y hora"
+echo "12.- Saber que procesos  esta  corriendo la maquina"
+echo "13.-  Jugar  Ahorcado"
+echo "14.- Crear un grupo"
+echo " "
+echo "Ingresa la opcion que te interese: "; read opcion
+
+if [ $opcion -eq "1" ]; then
+	echo "Opcion  1 pase de examen seleccionada"
+	echo "Ingresa el ususario": read usuario
+	set aux = $(groups $usuario)
+	if $aux &>/dev/null; then
+		echo "No existe";
+	else
+		echo "Se  encontro"
+	fi
+fi
+if [ $opcion -eq "2" ]; then
+	echo "Opcion  2 elegida"
+	echo "Estado de memoria"
+	free -h
+fi
+if [ $opcion -eq "3" ]; then
+	echo "Opcion  3 elegida"
+	echo  "Estado del disco duro"
+	df -h
+fi
+if [ $opcion -eq "4" ]; then
+	echo "Opcion  4 elegida"
+	echo "Version del sistema"
+	lsb_release -a
+fi
+if [ $opcion -eq "5" ]; then
+	echo "Opcion  5 elegida"
+	if [ "1" = " " ]; then
+		echo "Uso $0 [IP]"
+		echo "Ejemplo $0 192.168.59.1"
+	else
+		echo "Por favor espere mientras  se ejecutae l escaneo..."
+		nc -nvz $1  1-65535 > resultados.txt
+	fi
+fi
+if [ $opcion -eq "6" ]; then
+	echo "Opcion  6 seleccionada"
+	echo "Creasion de ususarios"
+	if [ "$UID" -ne "$ROOT_UID" ] then
+		echo "Debe de tener permisos"
+		exit
+	fi
+	if [ $# -eq 2 ] then
+		username=$1
+		pass=$2
+
+		grep -q "$username" /etc/passwd
+		if [ $? -eq $SUCCESS ] then
+			echo "El usuario $username ya existe"
+			echo "Elige otro usuario"
+			exit $E_USEREXISTS
+		fi
+		useradd -p "$pass" -d /home/ "$username" -m -g group1 "$username"
+		echo "Usuario  registrado"
+	else
+		echo "El programa necesita que se le ingresen 2 parametros"
+		echo "Ejemplo $0 usuario contraseña"
+	fi
+fi
+if [ $opcion -eq "7" ]; then
+	echo "Opcion  7 seleccionada"
+	echo -n "Introduzca el primer numero "; read x
+	echo -n "Introduzca el segundo numero "; read y
+	let suma=x+y
+	let resta=x-y
+	let multiplicacion=x*y
+	let division=x/y
+	let modulo=x%y
+	#Imprimimos las respuestas
+	echo "Suma: $suma"
+	echo "Resta: $resta"
+	echo "Multiplicacion: $multiplicacion"
+	echo "Division: $division"
+	echo "Modulo: $modulo"
+fi
+if [ $opcion -eq "8" ]; then
+	echo "Selecciono la opcion  8 elegida"
+	echo "Saber tu ip"
+	ip alist
+fi
+if [ $opcion -eq "9" ]; then
+	echo "Opcion  9 seleccionada"
+	echo "Para saber la puerta de enlace se utiliza el comando ip r"
+	ip r
+fi
+if [ $opcion -eq "10" ]; then
+	echo "Selecciono la opcion  10 elegida"
+	echo "Ingrese el nombre de el directorio o carpeta";  read directorio
+	mkdir $directorio
+fi
+if [ $opcion -eq "11" ]; then
+	echo "Opcion  11 elegida"
+	echo "Para saber la fecha y hora se utiliza el comando date "
+	date
+	uname -a
+fi
+if [ $opcion -eq "12" ]; then
+	echo "Opcion  12 elegida"
+	echo "El comando Top nos muestra los procesos que utilizan la mayotia de los recursos del sistema"
+	top
+fi
+String1="Elefante"
+if [ $opcion -eq "13" ]; then
+	echo "Eligio la opcion  13, jugar ahorcado"
+	echo "                                                                  ============================="
+	echo "                                                                  |                                                        |"
+	echo "                                                                  |                                                        |"
+	echo "                                                                /  \                                                       |"
+	echo "                                                            ------------                                                  |"
+	echo "                                                                |  |                                                       |"
+	echo "                                                                ---                                                        |"
+                echo "                                                                 |                                                         |"
+	echo "                                                          ---------------                                                |"
+	echo "                                                                 |                                                         |"
+	echo "                                                              /     \                                                      |"
+	echo "                                                            /         \                                                    |"
+	echo "                                                                                                                           |"
+	echo "                                                         =================================="
+	echo " "
+
+	echo " La palabra a adivinar es E______e"
+	echo "Ingresa la palabraque crees que sea"; read palabra
+	String2=palabra
+	if [ "$String1" = "$palabra" ]; then
+		echo "Correcto"
+	else
+		echo "Incorrecto"
+	fi
+fi
+if [ $opcion -eq "14" ]; then
+	echo "Opcion  14 elegida"
+	echo "Escriba el nombre del grupo a crear "; read group
+	sudo su
+	groupadd $group
+	echo "Deseasmeter un usuario al grupo que creaste"; read resp
+	if [ $resp -eq "Si"]; then
+		echo "Elegiste que si"
+		echo "Escribe el nombre del usuario"; read user
+		useradd -g $group -m -d $user
+	else
+		echo "Vamonos"
+	fi
+fi
+if [  $opcion -le "0" ]; then
+	echo  "Opcion invalida por ser menor al menu"
+elif [ $opcion -gt "14" ]; then
+	echo "Opcion invalida por ser mayor"
+fi
+
+
+
+
+
+
+ 
+
+
